@@ -1,0 +1,184 @@
+{
+  "items": [
+    {
+      "name": "Grilled Chicken Salad",
+      "description": "Premium High Protein Standard meal with organic greens",
+      "variants": "High Protein (Standard)",
+      "basePrice": 250,
+      "id": "item-1"
+    },
+    {
+      "name": "Brown Jeera Rice",
+      "description": "Wholesome fiber-rich jeera infused brown rice",
+      "variants": "1 Portion",
+      "basePrice": 150,
+      "id": "item-2"
+    },
+    {
+      "name": "Cold Pressed Juice",
+      "description": "Refreshing Watermelon & Basil natural reduction",
+      "variants": "Watermelon & Basil",
+      "basePrice": 120,
+      "id": "item-3"
+    }
+  ],
+  "invoices": [
+    {
+      "invoiceNumber": "INV-2026-4690",
+      "date": "2026-04-19",
+      "customer": {
+        "fullName": "Vijay Bro",
+        "phone": "9874563210",
+        "email": "vijay@gmail.com",
+        "address": "HYD"
+      },
+      "lineItems": [
+        {
+          "itemId": "item-1",
+          "name": "Grilled Chicken Salad",
+          "description": "High Protein (Standard)",
+          "quantity": 1,
+          "basePrice": 250,
+          "gstPercentage": 18,
+          "discountType": "percentage",
+          "discountValue": 10,
+          "rowTotal": 265.5
+        }
+      ],
+      "subtotal": 250,
+      "totalDiscount": 25,
+      "totalGST": 40.5,
+      "grandTotal": 265.5,
+      "status": "pending",
+      "id": "56208b88-b0e8-40c8-8462-342c89bf95eb"
+    },
+    {
+      "grandTotal": 825.5,
+      "subtotal": 800,
+      "lineItems": [
+        {
+          "rowTotal": 450,
+          "itemId": "item-1",
+          "gstPercentage": 5,
+          "basePrice": 250,
+          "description": "Premium High Protein Standard meal with organic greens",
+          "name": "Grilled Chicken Salad",
+          "quantity": 2,
+          "discountType": "percentage",
+          "discountValue": 10
+        },
+        {
+          "rowTotal": 308,
+          "itemId": "item-2",
+          "gstPercentage": 12,
+          "basePrice": 150,
+          "description": "Wholesome fiber-rich jeera infused brown rice",
+          "name": "Brown Jeera Rice",
+          "quantity": 2,
+          "discountType": "absolute",
+          "discountValue": 25
+        }
+      ],
+      "customer": {
+        "email": "john@healthylient.com",
+        "fullName": "John Wellness",
+        "phone": "+91-9876543210",
+        "address": "123 Wellness Drive, Bangalore, India - 560001"
+      },
+      "totalGST": 110.5,
+      "date": "2026-04-19",
+      "invoiceNumber": "INV-2026-5001",
+      "status": "pending",
+      "totalDiscount": 85,
+      "dueDate": "2026-05-04",
+      "id": "9b53cd05-92b2-465f-8daa-20bfd4986397"
+    },
+    {
+      "grandTotal": 472.5,
+      "subtotal": 500,
+      "lineItems": [
+        {
+          "rowTotal": 450,
+          "itemId": "item-1",
+          "gstPercentage": 5,
+          "basePrice": 250,
+          "description": "Premium meal",
+          "name": "Grilled Chicken Salad",
+          "quantity": 2,
+          "discountType": "percentage",
+          "discountValue": 10
+        }
+      ],
+      "customer": {
+        "email": "john@client.com",
+        "fullName": "John Wellness",
+        "phone": "+91-9876543210",
+        "address": "123 Wellness Drive, Bangalore"
+      },
+      "date": "2026-04-19",
+      "invoiceNumber": "INV-2026-5001",
+      "status": "pending",
+      "totalDiscount": 50,
+      "totalGST": 22.5,
+      "id": "9b50658d-e787-4acf-9611-ebb186d2a7ea"
+    },
+    {
+      "grandTotal": 472.5,
+      "subtotal": 500,
+      "lineItems": [
+        {
+          "rowTotal": 450,
+          "itemId": "item-1",
+          "gstPercentage": 5,
+          "basePrice": 250,
+          "description": "Premium meal",
+          "name": "Grilled Chicken Salad",
+          "quantity": 2,
+          "discountType": "percentage",
+          "discountValue": 10
+        }
+      ],
+      "customer": {
+        "email": "john@client.com",
+        "fullName": "John Wellness",
+        "phone": "+91-9876543210",
+        "address": "123 Wellness Drive, Bangalore"
+      },
+      "date": "2026-04-19",
+      "invoiceNumber": "INV-2026-5001",
+      "status": "pending",
+      "totalDiscount": 50,
+      "totalGST": 22.5,
+      "id": "b429f318-4f06-4eb5-ae95-4648847bf57e"
+    },
+    {
+      "invoiceNumber": "INV-2026-4395",
+      "date": "2026-04-19",
+      "customer": {
+        "fullName": "hfghjhgkgcy",
+        "phone": "cghdtjur bmcg",
+        "email": "hftdjdfjgfkjgf",
+        "address": "hvjktkite"
+      },
+      "lineItems": [
+        {
+          "itemId": "item-3",
+          "name": "Cold Pressed Juice",
+          "description": "Watermelon & Basil",
+          "quantity": 1,
+          "basePrice": 120,
+          "gstPercentage": 18,
+          "discountType": "percentage",
+          "discountValue": 0,
+          "rowTotal": 141.6
+        }
+      ],
+      "subtotal": 120,
+      "totalDiscount": 0,
+      "totalGST": 21.6,
+      "grandTotal": 141.6,
+      "status": "pending",
+      "id": "2bd65c8d-99ca-4440-b0cd-6674562da246"
+    }
+  ]
+}
