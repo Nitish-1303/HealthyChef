@@ -30,7 +30,10 @@ function getTransporter() {
 }
 
 export function getAppUrl() {
-  const fallback = `http://localhost:${process.env.PORT || 3000}`;
+  // On Vercel the production domain is provided; locally fall back to localhost.
+  const fallback = process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : `http://localhost:${process.env.PORT || 3000}`;
   return (process.env.APP_URL || fallback).replace(/\/+$/, '');
 }
 
