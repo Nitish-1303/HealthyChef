@@ -7,11 +7,9 @@ export default function MainLayout({ children }: { children: ReactNode }) {
   const isLanding = pathname === "/";
 
   return (
-    <div className="min-h-screen bg-health-bg flex">
+    <div className="min-h-screen bg-health-bg">
       <Navigation />
-      <main className={`flex-1 transition-all duration-300 ${isLanding ? "ml-0" : "ml-64 p-12 lg:p-20"}`}>
-        {children}
-      </main>
+      <main className={isLanding ? "" : "mx-auto max-w-7xl px-6 pb-20 pt-8 lg:px-12"}>{children}</main>
     </div>
   );
 }
