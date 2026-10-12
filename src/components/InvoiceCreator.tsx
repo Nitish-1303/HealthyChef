@@ -243,7 +243,7 @@ export default function InvoiceCreator() {
               {lineItems.length === 0 ? (
                 <div className="py-32 flex flex-col items-center justify-center border-2 border-dashed border-health-sage/20 rounded-[32px] bg-health-bg/20">
                   <Terminal size={48} className="text-health-sage opacity-30 mb-6" />
-                  <p className="text-health-muted">Awaiting nutritional inputs...</p>
+                  <p className="text-health-muted">No items yet. Add one from your pantry.</p>
                 </div>
               ) : lineItems.map((item, index) => (
                 <div key={index} className="p-10 bg-health-bg/30 rounded-[32px] relative group hover:bg-health-cream transition-all duration-500 shadow-sm border border-transparent hover:border-health-ink/10">
@@ -255,7 +255,7 @@ export default function InvoiceCreator() {
                         className="w-full flex items-center justify-between p-5 bg-white rounded-2xl border border-health-ink/15 font-bold text-sm transition-all hover:bg-health-olive/5"
                       >
                         <span className={item.itemId ? "text-health-leaf" : "text-health-muted font-medium"}>
-                          {item.itemId ? item.name : "SELECT INGREDIENT"}
+                          {item.itemId ? item.name : "Select an item"}
                         </span>
                         <ChevronDown size={18} className="text-health-sage" />
                       </button>
