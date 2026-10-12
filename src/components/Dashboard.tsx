@@ -38,10 +38,10 @@ export default function Dashboard() {
 
   const getStatusStyles = (status?: string) => {
     switch (status) {
-      case 'paid': return 'bg-health-leaf/10 text-health-leaf border-health-leaf/20';
-      case 'overdue': return 'bg-red-50 text-red-600 border-red-100';
+      case 'paid': return 'bg-[#8CC56B] text-health-leaf border-health-leaf';
+      case 'overdue': return 'bg-health-olive text-white border-health-leaf';
       case 'pending':
-      default: return 'bg-amber-50 text-amber-600 border-amber-100';
+      default: return 'bg-[#F5B82E] text-health-leaf border-health-leaf';
     }
   };
 
@@ -57,21 +57,21 @@ export default function Dashboard() {
           <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity text-health-sage">
             <Calendar size={100} />
           </div>
-          <p className="health-label mb-4">// Activity</p>
+          <p className="health-label mb-4">Activity</p>
           <div className="flex items-baseline gap-4">
-            <span className="text-7xl font-serif font-bold text-health-leaf">{invoices.length}</span>
-            <span className="health-label text-health-sage">Statements</span>
+            <span className="text-5xl md:text-6xl font-display font-extrabold text-health-leaf">{invoices.length}</span>
+            <span className="health-label text-health-sage">Invoices</span>
           </div>
         </div>
         
-        <div className="health-card p-12 bg-health-leaf text-white relative overflow-hidden group border-none shadow-2xl shadow-health-leaf/20">
+        <div className="health-card p-12 bg-health-leaf text-white relative overflow-hidden group ">
           <div className="absolute top-0 right-0 p-6 opacity-10">
             <TrendingUp size={100} />
           </div>
-          <p className="health-label text-white/50 mb-4">// Valuation</p>
+          <p className="health-label text-white/50 mb-4">Revenue</p>
           <div className="flex flex-col">
-            <span className="text-5xl font-serif font-bold mb-2 tracking-tight">{formatCurrency(totalRevenue)}</span>
-            <span className="health-label text-white/30 uppercase tracking-widest">Collected Revenue</span>
+            <span className="text-5xl font-display font-bold mb-2 tracking-tight">{formatCurrency(totalRevenue)}</span>
+            <span className="health-label text-white/30 uppercase tracking-widest">Collected</span>
           </div>
         </div>
 
@@ -79,26 +79,26 @@ export default function Dashboard() {
           <div className="absolute top-0 right-0 p-6 opacity-5 text-health-sage">
             <User size={100} />
           </div>
-          <p className="health-label mb-4">// Clients</p>
+          <p className="health-label mb-4">Clients</p>
           <div className="flex items-baseline gap-4">
-            <span className="text-7xl font-serif font-bold text-health-leaf">{new Set(invoices.map(i => i.customer.email)).size}</span>
-            <span className="health-label text-health-sage">Active Members</span>
+            <span className="text-5xl md:text-6xl font-display font-extrabold text-health-leaf">{new Set(invoices.map(i => i.customer.email)).size}</span>
+            <span className="health-label text-health-sage">Clients</span>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-12 mb-16 border-b border-health-muted/10 pb-16">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-12 mb-16 border-b border-health-ink/15 pb-16">
         <div className="max-w-2xl">
-          <h1 className="text-7xl font-serif font-bold text-health-leaf leading-none mb-6 italic">Nutritional <br />Analytics</h1>
-          <p className="text-lg text-health-muted italic max-w-sm">Synchronized management for metabolic protocols and optimization reports.</p>
+          <h1 className="text-5xl md:text-6xl font-display font-extrabold text-health-leaf leading-none mb-6">Your <br />invoices</h1>
+          <p className="text-lg text-health-muted max-w-sm">Every invoice you have sent, with its status and what is still owed.</p>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-6">
-          <div className="flex bg-white rounded-full border border-health-muted/10 p-1">
+          <div className="flex bg-white rounded-xl border border-health-ink/15 p-1">
             {(['all', 'pending', 'paid', 'overdue'] as StatusFilter[]).map((f) => (
               <button
                 key={f}
                 onClick={() => setStatusFilter(f)}
-                className={`px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
+                className={`px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
                   statusFilter === f 
                     ? 'bg-health-leaf text-white shadow-md' 
                     : 'text-health-muted hover:text-health-leaf'
@@ -113,43 +113,43 @@ export default function Dashboard() {
             <input 
               type="text" 
               placeholder="Search by name or ID..." 
-              className="w-full sm:w-96 pl-16 pr-8 py-5 bg-white rounded-full border border-health-muted/10 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-health-sage/20 transition-all placeholder:italic"
+              className="w-full sm:w-96 pl-16 pr-8 py-5 bg-white rounded-xl border border-health-ink/15 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-health-sage/20 transition-all "
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
           <Link to="/invoices/new" className="btn-health whitespace-nowrap px-10 py-5">
-            + Create Statement
+            + New invoice
           </Link>
         </div>
       </div>
 
-      <div className="health-card overflow-hidden bg-white/70 backdrop-blur-sm border-none shadow-xl shadow-health-ink/5">
+      <div className="health-card overflow-hidden bg-white/70  ">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-health-olive/5 text-health-leaf/50">
-                <th className="px-10 py-6 health-label">ID_Ref</th>
-                <th className="px-10 py-6 health-label">Member Identity</th>
+                <th className="px-10 py-6 health-label">Invoice</th>
+                <th className="px-10 py-6 health-label">Client</th>
                 <th className="px-10 py-6 health-label">Date</th>
                 <th className="px-10 py-6 health-label">Status</th>
-                <th className="px-10 py-6 health-label">Valuation</th>
+                <th className="px-10 py-6 health-label">Revenue</th>
                 <th className="px-10 py-6 health-label text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-health-muted/5">
               {loading ? (
-                <tr><td colSpan={6} className="px-10 py-32 text-center text-health-muted italic">Gathering archival data...</td></tr>
+                <tr><td colSpan={6} className="px-10 py-32 text-center text-health-muted">Loading invoices...</td></tr>
               ) : filteredInvoices.length === 0 ? (
-                <tr><td colSpan={6} className="px-10 py-32 text-center text-health-muted italic">No matching statements identified.</td></tr>
+                <tr><td colSpan={6} className="px-10 py-32 text-center text-health-muted">No matching invoices.</td></tr>
               ) : filteredInvoices.map((inv) => (
                 <tr key={inv.id} className="hover:bg-health-bg/40 transition-all duration-300 group">
                   <td className="px-10 py-8">
-                    <div className="font-serif font-bold text-health-leaf group-hover:text-health-olive transition-colors">{inv.invoiceNumber}</div>
+                    <div className="font-display font-bold text-health-leaf group-hover:text-health-olive transition-colors">{inv.invoiceNumber}</div>
                   </td>
                   <td className="px-10 py-8">
                     <div className="flex items-center gap-5">
-                      <div className="w-12 h-12 bg-health-sage/10 text-health-leaf rounded-2xl flex items-center justify-center font-serif font-bold text-lg group-hover:bg-health-olive group-hover:text-white transition-all duration-500">
+                      <div className="w-12 h-12 bg-health-sage/10 text-health-leaf rounded-2xl flex items-center justify-center font-display font-bold text-lg group-hover:bg-health-olive group-hover:text-white transition-all duration-500">
                         {inv.customer.fullName.charAt(0)}
                       </div>
                       <div>
@@ -158,23 +158,23 @@ export default function Dashboard() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-10 py-8 text-health-muted italic text-sm">
+                  <td className="px-10 py-8 text-health-muted text-sm">
                     {formatDisplayDate(inv.date)}
                   </td>
                   <td className="px-10 py-8">
-                    <span className={`inline-flex items-center px-4 py-1.5 rounded-full border font-bold text-[10px] uppercase tracking-widest ${getStatusStyles(inv.status)}`}>
+                    <span className={`inline-flex items-center px-4 py-1.5 rounded-xl border font-bold text-[10px] uppercase tracking-widest ${getStatusStyles(inv.status)}`}>
                       {inv.status || 'pending'}
                     </span>
                   </td>
-                  <td className="px-10 py-8 font-serif font-bold text-health-leaf text-lg">
+                  <td className="px-10 py-8 font-display font-bold text-health-leaf text-lg">
                     {formatCurrency(inv.grandTotal)}
                   </td>
                   <td className="px-10 py-8 text-right">
                     <Link 
                       to={`/invoices/${inv.id}`}
-                      className="inline-flex py-3 px-6 rounded-full bg-health-sage/10 text-health-leaf hover:bg-health-olive hover:text-white transition-all duration-300 font-medium text-xs gap-2 items-center"
+                      className="inline-flex py-3 px-6 rounded-xl bg-health-sage/10 text-health-leaf hover:bg-health-olive hover:text-white transition-all duration-300 font-medium text-xs gap-2 items-center"
                     >
-                      <Eye size={14} /> View Protocol
+                      <Eye size={14} /> View
                     </Link>
                   </td>
                 </tr>
