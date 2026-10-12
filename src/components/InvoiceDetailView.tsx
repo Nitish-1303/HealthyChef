@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Download, ChevronLeft, Calendar, User, Mail, MapPin, Printer, Receipt, Activity, Terminal, ArrowLeft } from "lucide-react";
 import { Invoice } from "../types";
 import { formatCurrency, calculateLineItemTotal } from "../lib/calculations";
+import { daysBetween, formatDisplayDate } from "../lib/invoices";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import HealthyChefLogo from "./HealthyChefLogo";
@@ -12,14 +13,13 @@ export default function InvoiceDetailView() {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [sendingReminder, setSendingReminder] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   useEffect(() => {
     const fetchInvoice = async () => {
       try {
-        const res = await fetch("/api/invoices");
-        const data: Invoice[] = await res.json();
-        const found = data.find(i => i.id === id);
-        setInvoice(found || null);
+        const res = await fetch(`/api/invoices/${id}`);
+        setInvoice(res.ok ? await res.json() : null);
       } catch (error) {
         console.error("Failed to fetch invoice:", error);
       } finally {
@@ -65,10 +65,9 @@ export default function InvoiceDetailView() {
       yPosition += 5;
 
       // Date info
-      const dueDate = new Date(new Date(invoice.date).getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       addText(`Issue Date: ${invoice.date}`, margin, yPosition, 8, [142, 146, 153]);
       yPosition += 4;
-      addText(`Due Date: ${dueDate}`, margin, yPosition, 8, [142, 146, 153]);
+      addText(`Due Date: ${invoice.dueDate}`, margin, yPosition, 8, [142, 146, 153]);
       yPosition += 8;
 
       // Customer section
@@ -152,7 +151,7 @@ export default function InvoiceDetailView() {
       yPosition += 3;
       addText("Terms & Conditions:", margin, yPosition, 7, [94, 90, 64], true);
       yPosition += 3;
-      addText("1. Payment due within 15 days of issue date.", margin, yPosition, 6, [142, 146, 153]);
+      addText(`1. Payment due by ${invoice.dueDate}.`, margin, yPosition, 6, [142, 146, 153]);
       yPosition += 3;
       addText("2. HealthyChef prioritizes fair trade and organic sourcing.", margin, yPosition, 6, [142, 146, 153]);
       yPosition += 3;
@@ -184,12 +183,35 @@ export default function InvoiceDetailView() {
       if (res.ok) {
         alert("Mindful reminder has been sent successfully.");
       } else {
-        alert("Failed to send reminder. Please try again.");
+        const body = await res.json().catch(() => null);
+        alert(body?.error || "Failed to send reminder. Please try again.");
       }
     } catch (error) {
       console.error("Reminder failure:", error);
     } finally {
       setSendingReminder(false);
+    }
+  };
+
+  const handleStatusChange = async (status: Invoice['status']) => {
+    if (!invoice) return;
+    setUpdatingStatus(true);
+    try {
+      const res = await fetch(`/api/invoices/${invoice.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (res.ok) {
+        setInvoice(await res.json());
+      } else {
+        alert("Failed to update the status. Please try again.");
+      }
+    } catch (error) {
+      console.error("Status update failure:", error);
+      alert("Could not reach the server. Please try again.");
+    } finally {
+      setUpdatingStatus(false);
     }
   };
 
@@ -206,6 +228,13 @@ export default function InvoiceDetailView() {
           <span className="health-label text-health-sage italic opacity-80 uppercase tracking-[0.2em] font-bold">Archives</span>
         </Link>
         <div className="flex items-center gap-6">
+          <button
+            disabled={updatingStatus}
+            onClick={() => handleStatusChange(invoice.status === 'paid' ? 'pending' : 'paid')}
+            className="flex items-center gap-3 px-8 h-14 rounded-full border border-health-muted/10 bg-white font-bold text-xs text-health-leaf hover:bg-health-cream transition-all disabled:opacity-50"
+          >
+            {invoice.status === 'paid' ? "Mark as Pending" : "Mark as Paid"}
+          </button>
           <button 
             disabled={sendingReminder}
             onClick={handleSendReminder}
@@ -253,7 +282,7 @@ export default function InvoiceDetailView() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Calendar size={16} className="text-health-sage opacity-60" />
-                  <span>Issued: {invoice.date}</span>
+                  <span>Issued: {formatDisplayDate(invoice.date)}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-health-sage" />
@@ -285,11 +314,11 @@ export default function InvoiceDetailView() {
               <div className="space-y-5">
                  <div>
                     <p className="text-3xl font-serif font-bold text-health-leaf italic tracking-tight">
-                      {new Date(new Date(invoice.date).getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                      {formatDisplayDate(invoice.dueDate)}
                     </p>
                  </div>
                  <div className="inline-flex py-2 px-5 rounded-full bg-health-sage/10 text-health-leaf font-bold text-[10px] uppercase tracking-widest">
-                   Term: 15 Days
+                   Term: {daysBetween(invoice.date, invoice.dueDate)} Days
                  </div>
               </div>
             </div>
@@ -338,7 +367,7 @@ export default function InvoiceDetailView() {
                  <h4 className="health-label text-health-leaf font-bold uppercase tracking-widest">Sustainability Protocol</h4>
               </div>
               <div className="text-xs text-health-muted space-y-4 leading-relaxed italic border-l-2 border-health-sage/30 pl-6">
-                <p>1. Settlement: Mindful transfer requested within 15 days of archive date.</p>
+                <p>1. Settlement: Mindful transfer requested by the due date.</p>
                 <p>2. Values: HealthyChef prioritizes organic sourcing and fair nutritional valuations.</p>
                 <p>3. Community: Your support sustains local artisanal food networks.</p>
               </div>
