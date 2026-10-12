@@ -1,64 +1,56 @@
-import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Package, FilePlus, Receipt, ArrowLeft } from "lucide-react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { Link, NavLink } from "react-router-dom";
 import HealthyChefLogo from "./HealthyChefLogo";
 
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+const REPO_URL = "https://github.com/Nitish-1303/HealthyChef";
+
+const tabs = [
+  { to: "/", label: "Overview", end: true },
+  { to: "/dashboard", label: "Dashboard" },
+  { to: "/inventory", label: "Pantry" },
+  { to: "/invoices/new", label: "Invoices" },
+];
 
 export default function Navigation() {
-  const { pathname } = useLocation();
-  const isLanding = pathname === "/";
-
-  if (isLanding) return null;
-
-  const links = [
-    { to: "/dashboard", label: "Analytics", icon: LayoutDashboard },
-    { to: "/inventory", label: "Ingredient Registry", icon: Package },
-    { to: "/invoices/new", label: "Draft Protocol", icon: FilePlus },
-  ];
-
   return (
-    <nav className="fixed left-0 top-0 h-full w-64 bg-health-cream border-r border-health-muted/10 py-12 px-8 flex flex-col z-50 shadow-xl shadow-health-ink/5">
-      <HealthyChefLogo size={40} className="mb-20" />
-      
-      <div className="flex flex-col gap-3">
-        {links.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) => cn(
-              "flex items-center gap-4 py-4 px-5 rounded-2xl font-medium text-sm transition-all duration-300",
-              isActive 
-                ? "bg-health-olive text-white shadow-md shadow-health-olive/20" 
-                : "text-health-muted hover:bg-health-bg hover:text-health-leaf"
-            )}
-          >
-            <Icon size={18} strokeWidth={2} />
-            <span>{label}</span>
-          </NavLink>
-        ))}
-      </div>
+    <header className="sticky top-0 z-50 bg-health-bg/90 backdrop-blur">
+      <nav className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 px-6 py-5 lg:grid-cols-[1fr_auto_1fr] lg:px-12">
+        <Link to="/" aria-label="HealthyChef home">
+          <HealthyChefLogo />
+        </Link>
 
-      <div className="mt-auto space-y-6">
-        <NavLink 
-          to="/" 
-          className="flex items-center gap-4 py-3 px-5 font-medium text-sm text-health-muted hover:text-health-leaf transition-all group"
-        >
-          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-          Return Home
-        </NavLink>
-        
-        <div className="health-card p-6 bg-health-olive/5 border-none">
-          <p className="health-label mb-2 text-health-olive">Kitchen Monitor</p>
-          <div className="flex items-center gap-3">
-             <div className="w-2 h-2 rounded-full bg-health-sage animate-pulse" />
-             <p className="health-value text-sm font-semibold text-health-leaf">Organic Source Active</p>
+        <div className="order-3 col-span-2 flex justify-center overflow-x-auto lg:order-none lg:col-span-1">
+          <div className="flex gap-0.5 rounded-xl border-2 border-health-ink bg-white p-1">
+            {tabs.map(({ to, label, end }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className={({ isActive }) =>
+                  `whitespace-nowrap rounded-lg px-4 py-2 text-sm font-bold transition-colors ${
+                    isActive ? "bg-citrus text-health-ink" : "text-health-muted hover:text-health-ink"
+                  }`
+                }
+              >
+                {label}
+              </NavLink>
+            ))}
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="whitespace-nowrap rounded-lg px-4 py-2 text-sm font-bold text-health-muted transition-colors hover:text-health-ink"
+            >
+              Source ↗
+            </a>
           </div>
         </div>
-      </div>
-    </nav>
+
+        <div className="justify-self-end">
+          <Link to="/invoices/new" className="btn-health">
+            New invoice
+          </Link>
+        </div>
+      </nav>
+    </header>
   );
 }
