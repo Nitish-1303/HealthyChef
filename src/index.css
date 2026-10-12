@@ -1,68 +1,52 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap');
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Libre Baskerville", "Georgia", serif;
-  
-  --color-health-bg: #F5F5F0;
-  --color-health-cream: #FFFFFF;
-  --color-health-ink: #2D2D2A;
-  --color-health-olive: #5A5A40;
-  --color-health-sage: #A39171;
-  --color-health-leaf: #3E4E3F;
-  --color-health-muted: #8B8B80;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "DM Sans", ui-sans-serif, sans-serif;
 
-  --radius-health: 24px;
+  --color-health-bg: #FFF3E0;
+  --color-health-cream: #FFFFFF;
+  --color-health-ink: #2A1D14;
+  --color-health-olive: #E4572E;   /* tomato: primary accent */
+  --color-health-sage: #2F7D3B;    /* leaf green: secondary accent */
+  --color-health-leaf: #2A1D14;    /* dark ink used for headings and outlines */
+  --color-health-muted: #6A5646;
+  --color-citrus: #F5B82E;
+  --color-lime: #8CC56B;
+
+  --radius-health: 16px;
 }
 
 @layer base {
   body {
-    @apply bg-health-bg text-health-ink font-sans selection:bg-health-olive/20;
+    @apply bg-health-bg text-health-ink font-sans selection:bg-citrus;
     -webkit-font-smoothing: antialiased;
   }
-  
+
   h1, h2, h3 {
-    @apply font-serif text-health-leaf;
+    @apply font-display font-extrabold text-health-leaf tracking-tight;
   }
 }
 
 @layer components {
-  /* Natural card style */
   .health-card {
-    @apply bg-health-cream border border-health-muted/10 shadow-[0_4px_24px_rgba(45,45,42,0.05)] rounded-health;
+    @apply bg-health-cream border-2 border-health-ink shadow-[5px_5px_0_#2A1D14] rounded-health;
   }
 
   .health-label {
-    @apply font-sans text-xs uppercase tracking-wider text-health-muted font-semibold;
+    @apply font-sans text-xs uppercase tracking-wider text-health-muted font-bold;
   }
 
   .health-value {
-    @apply font-serif text-lg text-health-leaf;
+    @apply font-display text-lg text-health-leaf;
   }
 
   .btn-health {
-    @apply px-8 py-3 bg-health-olive text-white font-sans text-sm font-medium rounded-full transition-all hover:bg-health-leaf active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+    @apply px-8 py-3 bg-health-olive text-white font-sans text-sm font-bold rounded-xl border-2 border-health-ink shadow-[3px_3px_0_#2A1D14] transition-all hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#2A1D14] active:translate-y-0.5 active:shadow-none disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .status-pill {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest;
+    @apply inline-flex items-center px-3 py-1 rounded-md border-2 border-health-ink text-[10px] font-bold uppercase tracking-widest;
   }
-}
-
-/* Soft shimmer for health feel */
-.health-shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.4) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 3s infinite linear;
-}
-
-@keyframes shimmer {
-  from { background-position: -200% 0; }
-  to { background-position: 200% 0; }
 }
