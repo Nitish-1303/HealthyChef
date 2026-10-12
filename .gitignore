@@ -9,4 +9,5 @@ coverage/
 
 # Local data (may contain customer details) - create with `npm run seed`
 db.json
+healthychef.sqlite*
 dist-server/
