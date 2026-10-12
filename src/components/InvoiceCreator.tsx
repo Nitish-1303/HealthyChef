@@ -3,6 +3,7 @@ import { Plus, Trash2, Search, Calendar, ChevronDown, CheckCircle2, User, Phone,
 import { InventoryItem, LineItem, InvoiceCustomer, Invoice } from "../types";
 import { calculateLineItemTotal, calculateInvoiceSummary, formatCurrency } from "../lib/calculations";
 import { useNavigate } from "react-router-dom";
+import { addDays, todayISO, formatDisplayDate, DEFAULT_TERM_DAYS } from "../lib/invoices";
 
 export default function InvoiceCreator() {
   const navigate = useNavigate();
@@ -16,11 +17,11 @@ export default function InvoiceCreator() {
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [showItemPicker, setShowItemPicker] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [status, setStatus] = useState<Invoice['status']>('pending');
+  const [status, setStatus] = useState<'pending' | 'paid'>('pending');
+  const [dueDate, setDueDate] = useState(() => addDays(todayISO(), DEFAULT_TERM_DAYS));
 
-  // Auto-generate metadata
-  const invoiceNumber = useMemo(() => `INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`, []);
-  const currentDate = useMemo(() => new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }), []);
+  // The invoice number is assigned by the server when the invoice is saved.
+  const currentDate = useMemo(() => formatDisplayDate(todayISO()), []);
 
   useEffect(() => {
     fetchItems();
@@ -82,28 +83,31 @@ export default function InvoiceCreator() {
       alert("Please fill in customer details and add at least one item.");
       return;
     }
+    if (!dueDate || dueDate < todayISO()) {
+      alert("Please choose a due date that is today or later.");
+      return;
+    }
+
+    const sendEmail = customer.email
+      ? window.confirm(`Email this invoice to ${customer.email} now?\n\nOK = save and send email\nCancel = save without emailing`)
+      : false;
 
     setIsSaving(true);
-    const invoiceData: Partial<Invoice> = {
-      invoiceNumber,
-      date: new Date().toISOString().split('T')[0],
-      customer,
-      lineItems,
-      ...summary,
-      status
-    };
-
     try {
       const res = await fetch("/api/invoices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(invoiceData),
+        body: JSON.stringify({ customer, lineItems, dueDate, status, sendEmail }),
       });
       if (res.ok) {
         navigate("/dashboard");
+      } else {
+        const body = await res.json().catch(() => null);
+        alert(body?.error || "Failed to save the invoice. Please try again.");
       }
     } catch (error) {
       console.error("Failed to save invoice:", error);
+      alert("Could not reach the server. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -120,11 +124,11 @@ export default function InvoiceCreator() {
           <div className="flex items-center gap-6 bg-white border border-health-muted/10 rounded-2xl px-6 h-16 shadow-lg shadow-health-ink/5">
             <div className="flex items-center gap-3">
               <span className="health-label font-bold text-health-sage">REF:</span>
-              <span className="text-health-leaf font-bold font-serif">{invoiceNumber}</span>
+              <span className="text-health-leaf font-bold font-serif">Assigned on save</span>
             </div>
             <div className="w-px h-6 bg-health-muted/10" />
             <div className="flex bg-health-bg rounded-full p-1">
-              {(['pending', 'paid', 'overdue'] as Invoice['status'][]).map((s) => (
+              {(['pending', 'paid'] as const).map((s) => (
                 <button
                   key={s}
                   onClick={() => setStatus(s)}
@@ -139,6 +143,16 @@ export default function InvoiceCreator() {
               ))}
             </div>
           </div>
+          <label className="flex items-center gap-3 health-label text-health-sage tracking-widest uppercase text-[10px]">
+            Due date
+            <input
+              type="date"
+              value={dueDate}
+              min={todayISO()}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="bg-white border border-health-muted/10 rounded-full px-4 py-2 text-health-leaf font-bold normal-case tracking-normal"
+            />
+          </label>
           <div className="flex items-center gap-3">
              <div className="w-2 h-2 rounded-full bg-health-sage animate-pulse" />
              <span className="health-label text-health-sage tracking-widest uppercase text-[10px]">Session Active – {currentDate}</span>
