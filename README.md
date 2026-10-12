@@ -1,125 +1,92 @@
-# HealthyChef
+<p align="center">
+  <img src="public/favicon.svg" alt="HealthyChef logo" width="84" height="84">
+</p>
 
-Invoicing, pantry and payment tracking for meal-prep and nutrition businesses. Create GST-ready invoices, email them to clients, export PDFs and see who has paid.
+<h1 align="center">HealthyChef</h1>
 
-The interface uses a warm citrus theme (Bricolage Grotesque and DM Sans, tomato, leaf green and mustard) with a tomato-leaf logo mark.
+<p align="center"><strong>Feed people. Get paid.</strong><br>Invoicing, pantry and payment tracking for meal-prep and nutrition businesses.</p>
 
-## ✨ Features
+## Walkthrough
 
-- **Dashboard**: Real-time analytics and business metrics at a glance
-- **Inventory Management**: Track and manage your nutritional products and ingredients
-- **Invoice Management**: Create, view, and manage invoices with PDF export capabilities
-- **Invoice Status Tracking**: Mark invoices paid; unpaid invoices past their due date show as overdue
-- **Email Notifications**: Send invoices and notifications via integrated email service
-- **Responsive Design**: Mobile-friendly interface built with Tailwind CSS
-- **Smooth Animations**: Enhanced user experience with motion animations
-- **Type-Safe**: Full TypeScript support for robust development
+A 1:40 tour of the app with narration and captions: landing page, dashboard, pantry, and creating and paying an invoice.
 
-## 🛠️ Tech Stack
+https://github.com/user-attachments/assets/592aa415-398f-4587-8baf-85e5a41b1f10
 
-### Frontend
-- **React 19** - Modern UI library
-- **TypeScript** - Type-safe JavaScript
-- **Vite** - Lightning-fast build tool
-- **Tailwind CSS** - Utility-first CSS framework
-- **React Router** - Client-side routing
-- **Lucide React** - Beautiful icon library
-- **Motion** - Animation library
-- **jsPDF** - PDF document generation
+Built by **Yeluru Nitish**.
 
-### Backend
-- **Express.js** - Web server framework
-- **Node.js** - JavaScript runtime
-- **Nodemailer** - Email service integration
-- **Zod** - Request validation
+## What it does
 
-### Utilities
-- **date-fns** - Date manipulation library
-- **clsx** - Utility for conditional CSS classes
-- **uuid** - Unique identifier generation
-- **tailwind-merge** - Tailwind CSS utilities merger
+| Area | What you get |
+| --- | --- |
+| Invoices | Create an invoice for a client from your pantry items. GST and discounts are calculated for you. Invoice numbers (`INV-YYYY-NNNN`) are assigned by the server, in order. |
+| Payment status | Mark an invoice paid or pending. An unpaid invoice past its due date shows as overdue. Revenue only counts paid invoices. |
+| Pantry | Keep ingredients and dishes with a base price, GST rate and variant, then reuse them on every invoice. |
+| PDF | Download an invoice as a PDF. |
+| Email | Email an invoice link to the client, or send a reminder. Disabled until email settings are added. |
+| Dashboard | See every invoice with its status, filter by status, and search by client or number. |
 
-## 🚀 Getting Started
+## Run it locally
 
-### Prerequisites
-- Node.js (v18 or higher recommended)
-- npm or yarn
+You need Node.js 18 or newer.
 
-### Installation
+```bash
+npm install
+cp .env.example .env     # optional: port, public URL, email settings
+npm run seed             # optional: fake demo data in db.json
+npm run dev              # http://localhost:3000
+```
 
-1. **Clone the repository** (if applicable) or navigate to the project directory
-
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables** (optional):
-   Copy `.env.example` to `.env` to set `PORT`, `APP_URL` and the email settings.
-   Invoice emails stay disabled until `EMAIL_SERVICE`, `EMAIL_USER` and `EMAIL_PASS` are set.
-
-4. **Add demo data** (optional):
-   ```bash
-   npm run seed
-   ```
-   This writes fake demo items and invoices to `db.json`. The file is git-ignored, so
-   your real data is never committed. Use `npm run seed -- --force` to overwrite it.
-
-5. **Run the development server**:
-   ```bash
-   npm run dev
-   ```
-   The app will be available at `http://localhost:3000`
-
-### Build for Production
+Production:
 
 ```bash
 npm run build
-```
-
-This builds the frontend into `dist` and compiles the server into `dist-server`.
-
-### Start Production Server
-
-```bash
 npm start
 ```
 
-The app is served at `http://localhost:3000` (or `PORT`). Note that the API has no authentication, so keep it on a trusted network.
+`npm run seed -- --force` overwrites an existing `db.json`. The file is git-ignored, so real data is never committed.
 
-## 📁 Project Structure
+### Settings
+
+| Variable | Purpose |
+| --- | --- |
+| `PORT` | Port the server listens on. Default `3000`. |
+| `APP_URL` | Public base URL used in invoice emails. Default `http://localhost:PORT`. |
+| `EMAIL_SERVICE`, `EMAIL_USER`, `EMAIL_PASS` | Needed together to send invoice emails. |
+
+## Tech
+
+React 19, TypeScript, Vite, Tailwind CSS 4, Express, Zod for request validation, Nodemailer, jsPDF, Motion. Data is stored in a local `db.json` file.
+
+## Project structure
 
 ```
 src/
-├── components/          # React components
-│   ├── Dashboard.tsx
-│   ├── InventoryPage.tsx
-│   ├── InvoiceCreator.tsx
-│   ├── InvoiceDetailView.tsx
-│   ├── LandingPage.tsx
-│   ├── MainLayout.tsx
-│   ├── Navigation.tsx
-│   └── HealthyChefLogo.tsx
-├── server/              # DB access and request validation
-├── services/            # External services
-│   └── mailService.ts
-├── lib/                 # Utility functions
-│   └── calculations.ts
-├── App.tsx              # Main app component
-├── main.tsx             # Entry point
-├── index.css            # Global styles
-└── types.ts             # TypeScript type definitions
+  components/   Landing page, dashboard, pantry, invoice form, invoice page, navigation
+  server/       db.json access and request validation
+  services/     Email sending
+  lib/          Calculations and invoice helpers
+scripts/        Demo data seeding
+server.ts       Express API and static file server
 ```
 
-## 🔧 Available Commands
+## API
 
-- `npm run dev` - Start development server
-- `npm run seed` - Write fake demo data to db.json
-- `npm run build` - Build for production
-- `npm start` - Run production server
-- `npm run lint` - Check TypeScript types
-- `npm run clean` - Remove build artifacts
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET, POST | `/api/items` | List or add pantry items |
+| PUT, DELETE | `/api/items/:id` | Update or remove an item |
+| POST | `/api/items/bulk-delete` | Remove several items |
+| GET, POST | `/api/invoices` | List or create invoices |
+| GET | `/api/invoices/:id` | One invoice |
+| PATCH | `/api/invoices/:id/status` | Change status |
+| POST | `/api/invoices/:id/remind` | Email a reminder |
 
-## 📝 License
+## Limits
 
-Built by Yeluru Nitish.
+- There is no login. The API is open, so run it on a trusted network.
+- Data lives in one JSON file, which suits a single small business, not many users.
+- The landing page figures are sample data.
+
+## Scripts
+
+`npm run dev` · `npm run build` · `npm start` · `npm run lint` · `npm run seed` · `npm run clean`
