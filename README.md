@@ -14,6 +14,12 @@ https://github.com/user-attachments/assets/592aa415-398f-4587-8baf-85e5a41b1f10
 
 Built by **Yeluru Nitish**.
 
+## Sponsor this project
+
+<p align="center">
+  <a href="https://github.com/sponsors/Nitish-1303"><img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?style=for-the-badge" alt="Sponsor Nitish-1303 on GitHub"></a>
+</p>
+
 ## What it does
 
 | Area | What you get |
