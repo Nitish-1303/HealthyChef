@@ -2,7 +2,9 @@ import express, { NextFunction, Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { ZodError } from "zod";
 import { sendInvoiceEmail } from "../services/mailService.js";
-import { ensureDB, readDB, updateDB, nextInvoiceNumber } from "./db.js";
+import { authRouter, isDemoRequest, requireLogin, sameOriginOnly, warnIfAuthOff } from "./auth.js";
+import { readDB, updateDB, nextInvoiceNumber } from "./db.js";
+import { buildDemoData } from "./demoData.js";
 import {
   bulkDeleteSchema,
   createInvoiceSchema,
@@ -19,6 +21,9 @@ function presentInvoice(invoice: Invoice): Invoice {
   return { ...withDue, status: effectiveStatus(withDue) };
 }
 
+/** Demo visitors always see the fake sample data, never the real database. */
+const readFor = (req: Request) => (isDemoRequest(req) ? Promise.resolve(buildDemoData()) : readDB());
+
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 // Express 4 does not catch rejected promises, so wrap async handlers.
@@ -31,11 +36,19 @@ const handle =
 export function createApp() {
   const app = express();
 
+  // Vercel sits behind a proxy; this makes req.ip the visitor's address (used for the login limit).
+  app.set("trust proxy", 1);
   app.use(express.json({ limit: "100kb" }));
+  app.use("/api", sameOriginOnly);
+
+  // Login endpoints are open. Everything else under /api needs a session.
+  app.use("/api/auth", authRouter());
+  app.use("/api", requireLogin);
+  warnIfAuthOff();
 
   // Items API
-  app.get("/api/items", handle(async (_req, res) => {
-    const db = await readDB();
+  app.get("/api/items", handle(async (req, res) => {
+    const db = await readFor(req);
     res.json(db.items);
   }));
 
@@ -74,13 +87,13 @@ export function createApp() {
   }));
 
   // Invoices API
-  app.get("/api/invoices", handle(async (_req, res) => {
-    const db = await readDB();
+  app.get("/api/invoices", handle(async (req, res) => {
+    const db = await readFor(req);
     res.json(db.invoices.map(presentInvoice));
   }));
 
   app.get("/api/invoices/:id", handle(async (req, res) => {
-    const db = await readDB();
+    const db = await readFor(req);
     const invoice = db.invoices.find((i) => i.id === req.params.id);
     if (!invoice) return res.status(404).json({ error: "Invoice not found" });
     res.json(presentInvoice(invoice));
