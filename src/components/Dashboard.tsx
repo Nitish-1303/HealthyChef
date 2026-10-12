@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Search, FileText, Download, ChevronRight, Eye, Calendar, User, TrendingUp, Filter } from "lucide-react";
 import { Invoice } from "../types";
 import { formatCurrency } from "../lib/calculations";
+import { formatDisplayDate } from "../lib/invoices";
 import { Link } from "react-router-dom";
 
 type StatusFilter = 'all' | 'pending' | 'paid' | 'overdue';
@@ -44,7 +45,10 @@ export default function Dashboard() {
     }
   };
 
-  const totalRevenue = invoices.reduce((sum, inv) => sum + inv.grandTotal, 0);
+  // Revenue only counts invoices that have actually been paid.
+  const totalRevenue = invoices
+    .filter(inv => inv.status === 'paid')
+    .reduce((sum, inv) => sum + inv.grandTotal, 0);
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -67,7 +71,7 @@ export default function Dashboard() {
           <p className="health-label text-white/50 mb-4">// Valuation</p>
           <div className="flex flex-col">
             <span className="text-5xl font-serif font-bold mb-2 tracking-tight">{formatCurrency(totalRevenue)}</span>
-            <span className="health-label text-white/30 uppercase tracking-widest">Aggregate Revenue</span>
+            <span className="health-label text-white/30 uppercase tracking-widest">Collected Revenue</span>
           </div>
         </div>
 
@@ -135,9 +139,9 @@ export default function Dashboard() {
             </thead>
             <tbody className="divide-y divide-health-muted/5">
               {loading ? (
-                <tr><td colSpan={5} className="px-10 py-32 text-center text-health-muted italic">Gathering archival data...</td></tr>
+                <tr><td colSpan={6} className="px-10 py-32 text-center text-health-muted italic">Gathering archival data...</td></tr>
               ) : filteredInvoices.length === 0 ? (
-                <tr><td colSpan={5} className="px-10 py-32 text-center text-health-muted italic">No matching statements identified.</td></tr>
+                <tr><td colSpan={6} className="px-10 py-32 text-center text-health-muted italic">No matching statements identified.</td></tr>
               ) : filteredInvoices.map((inv) => (
                 <tr key={inv.id} className="hover:bg-health-bg/40 transition-all duration-300 group">
                   <td className="px-10 py-8">
@@ -155,7 +159,7 @@ export default function Dashboard() {
                     </div>
                   </td>
                   <td className="px-10 py-8 text-health-muted italic text-sm">
-                    {inv.date}
+                    {formatDisplayDate(inv.date)}
                   </td>
                   <td className="px-10 py-8">
                     <span className={`inline-flex items-center px-4 py-1.5 rounded-full border font-bold text-[10px] uppercase tracking-widest ${getStatusStyles(inv.status)}`}>
