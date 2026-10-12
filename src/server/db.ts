@@ -1,47 +1,122 @@
 import fs from "fs/promises";
 import path from "path";
+import { BlobPreconditionFailedError, get, put } from "@vercel/blob";
 import type { InventoryItem, Invoice } from "../types.js";
-
-const DB_FILE = path.resolve(process.cwd(), "db.json");
 
 export interface DB {
   items: InventoryItem[];
   invoices: Invoice[];
 }
 
-export async function ensureDB() {
-  try {
-    await fs.access(DB_FILE);
-  } catch {
-    await writeDB({ items: [], invoices: [] });
-  }
+/*
+ * Where the data lives:
+ *  - On Vercel (BLOB_READ_WRITE_TOKEN is set) in one private Vercel Blob file.
+ *    Serverless functions have no disk that survives between requests.
+ *  - Everywhere else in a local db.json file.
+ */
+const BLOB_PATH = "healthychef/db.json";
+const useBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const DB_FILE = path.resolve(process.cwd(), "db.json");
+
+// ---------- local file storage ----------
+
+async function readFileDB(): Promise<DB> {
+  return JSON.parse(await fs.readFile(DB_FILE, "utf-8"));
 }
 
-export async function readDB(): Promise<DB> {
-  const data = await fs.readFile(DB_FILE, "utf-8");
-  return JSON.parse(data);
-}
-
-export async function writeDB(data: DB) {
+async function writeFileDB(data: DB) {
   // Write to a temp file first so a crash mid-write cannot corrupt db.json.
   const tmp = `${DB_FILE}.tmp`;
   await fs.writeFile(tmp, JSON.stringify(data, null, 2));
   await fs.rename(tmp, DB_FILE);
 }
 
-// Requests that change data run one at a time, so two saves can never read the
-// same snapshot and overwrite each other.
+// ---------- Vercel Blob storage ----------
+
+async function readBlobDB(): Promise<{ db: DB; etag: string } | null> {
+  const result = await get(BLOB_PATH, { access: "private", useCache: false });
+  if (!result || result.statusCode !== 200) return null;
+  const text = await new Response(result.stream).text();
+  return { db: JSON.parse(text), etag: result.blob.etag };
+}
+
+async function writeBlobDB(data: DB, etag?: string) {
+  await put(BLOB_PATH, JSON.stringify(data), {
+    access: "private",
+    contentType: "application/json",
+    addRandomSuffix: false,
+    // First write must not replace a file another request just created.
+    allowOverwrite: Boolean(etag),
+    ...(etag ? { ifMatch: etag } : {}),
+  });
+}
+
+/** Read the blob, creating an empty database the first time. */
+async function loadBlobDB(): Promise<{ db: DB; etag: string }> {
+  const existing = await readBlobDB();
+  if (existing) return existing;
+  try {
+    await writeBlobDB({ items: [], invoices: [] });
+  } catch {
+    // Another request created it first; read theirs below.
+  }
+  const created = await readBlobDB();
+  if (!created) throw new Error("Could not create the database in Vercel Blob");
+  return created;
+}
+
+// ---------- shared API ----------
+
+export async function ensureDB() {
+  if (useBlob) {
+    await loadBlobDB();
+    return;
+  }
+  try {
+    await fs.access(DB_FILE);
+  } catch {
+    await writeFileDB({ items: [], invoices: [] });
+  }
+}
+
+export async function readDB(): Promise<DB> {
+  if (useBlob) return (await loadBlobDB()).db;
+  return readFileDB();
+}
+
+// Requests that change a local file run one at a time, so two saves can never
+// read the same snapshot and overwrite each other.
 let queue: Promise<unknown> = Promise.resolve();
 
-export function updateDB<T>(change: (db: DB) => T | Promise<T>): Promise<T> {
+async function updateFileDB<T>(change: (db: DB) => T | Promise<T>): Promise<T> {
   const run = queue.then(async () => {
-    const db = await readDB();
+    const db = await readFileDB();
     const result = await change(db);
-    await writeDB(db);
+    await writeFileDB(db);
     return result;
   });
   queue = run.catch(() => undefined);
   return run;
+}
+
+// On Vercel several function instances can run at once. The ETag check makes a
+// save fail if someone else saved first, and we then re-read and try again.
+async function updateBlobDB<T>(change: (db: DB) => T | Promise<T>): Promise<T> {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const { db, etag } = await loadBlobDB();
+    const result = await change(db);
+    try {
+      await writeBlobDB(db, etag);
+      return result;
+    } catch (err) {
+      if (!(err instanceof BlobPreconditionFailedError)) throw err;
+    }
+  }
+  throw new Error("The database is busy, please try again");
+}
+
+export function updateDB<T>(change: (db: DB) => T | Promise<T>): Promise<T> {
+  return useBlob ? updateBlobDB(change) : updateFileDB(change);
 }
 
 /** Next invoice number for the year: INV-2026-0001, INV-2026-0002, ... */
