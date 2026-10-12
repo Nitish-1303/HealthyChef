@@ -1,4 +1,4 @@
-import { LineItem } from "../types";
+import type { LineItem } from "../types.js";
 
 export function calculateLineItemTotal(item: LineItem) {
   const baseTotal = item.basePrice * item.quantity;

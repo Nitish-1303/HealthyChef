@@ -1,10 +1,10 @@
 # HealthyChef - Human Longevity & Nutrition
 
-A modern, AI-powered application designed to help manage nutrition, inventory, and invoicing for health-conscious businesses. HealthyChef combines intelligent features with an intuitive interface to streamline your health and nutrition management operations.
+A modern application designed to help manage nutrition, inventory, and invoicing for health-conscious businesses. HealthyChef pairs an intuitive interface with simple inventory and invoice tools for health and nutrition businesses.
 
 ## 📋 About
 
-HealthyChef is a comprehensive platform that integrates AI capabilities to support businesses focused on human longevity and nutrition. Whether you're managing a meal prep service, nutritional consulting business, or health-focused food enterprise, HealthyChef provides the tools you need to manage inventory, create invoices, and track business metrics.
+HealthyChef supports businesses focused on human longevity and nutrition. Whether you're managing a meal prep service, nutritional consulting business, or health-focused food enterprise, HealthyChef provides the tools you need to manage inventory, create invoices, and track business metrics.
 
 
 ## ✨ Features
@@ -12,7 +12,7 @@ HealthyChef is a comprehensive platform that integrates AI capabilities to suppo
 - **Dashboard**: Real-time analytics and business metrics at a glance
 - **Inventory Management**: Track and manage your nutritional products and ingredients
 - **Invoice Management**: Create, view, and manage invoices with PDF export capabilities
-- **AI-Powered Integration**: Leverage Google Gemini API for intelligent features
+- **Invoice Status Tracking**: Mark invoices paid; unpaid invoices past their due date show as overdue
 - **Email Notifications**: Send invoices and notifications via integrated email service
 - **Responsive Design**: Mobile-friendly interface built with Tailwind CSS
 - **Smooth Animations**: Enhanced user experience with motion animations
@@ -34,7 +34,7 @@ HealthyChef is a comprehensive platform that integrates AI capabilities to suppo
 - **Express.js** - Web server framework
 - **Node.js** - JavaScript runtime
 - **Nodemailer** - Email service integration
-- **Google Genai** - AI capabilities via Gemini API
+- **Zod** - Request validation
 
 ### Utilities
 - **date-fns** - Date manipulation library
@@ -57,17 +57,22 @@ HealthyChef is a comprehensive platform that integrates AI capabilities to suppo
    npm install
    ```
 
-3. **Set up environment variables**:
-   Create a `.env.local` file in the root directory and add your Gemini API key:
-   ```
-   GEMINI_API_KEY=your_gemini_api_key_here
-   ```
+3. **Set up environment variables** (optional):
+   Copy `.env.example` to `.env` to set `PORT`, `APP_URL` and the email settings.
+   Invoice emails stay disabled until `EMAIL_SERVICE`, `EMAIL_USER` and `EMAIL_PASS` are set.
 
-4. **Run the development server**:
+4. **Add demo data** (optional):
+   ```bash
+   npm run seed
+   ```
+   This writes fake demo items and invoices to `db.json`. The file is git-ignored, so
+   your real data is never committed. Use `npm run seed -- --force` to overwrite it.
+
+5. **Run the development server**:
    ```bash
    npm run dev
    ```
-   The app will be available at `http://localhost:5173`
+   The app will be available at `http://localhost:3000`
 
 ### Build for Production
 
@@ -75,13 +80,15 @@ HealthyChef is a comprehensive platform that integrates AI capabilities to suppo
 npm run build
 ```
 
-This creates an optimized production build in the `dist` folder.
+This builds the frontend into `dist` and compiles the server into `dist-server`.
 
 ### Start Production Server
 
 ```bash
 npm start
 ```
+
+The app is served at `http://localhost:3000` (or `PORT`). Note that the API has no authentication, so keep it on a trusted network.
 
 ## 📁 Project Structure
 
@@ -94,6 +101,7 @@ src/
 │   ├── InvoiceDetailView.tsx
 │   ├── LandingPage.tsx
 │   └── MainLayout.tsx
+├── server/              # DB access and request validation
 ├── services/            # External services
 │   └── mailService.ts
 ├── lib/                 # Utility functions
@@ -107,6 +115,7 @@ src/
 ## 🔧 Available Commands
 
 - `npm run dev` - Start development server
+- `npm run seed` - Write fake demo data to db.json
 - `npm run build` - Build for production
 - `npm start` - Run production server
 - `npm run lint` - Check TypeScript types
