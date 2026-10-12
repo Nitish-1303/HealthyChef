@@ -53,6 +53,16 @@ npm start
 | `APP_URL` | Public base URL used in invoice emails. Default `http://localhost:PORT`. |
 | `EMAIL_SERVICE`, `EMAIL_USER`, `EMAIL_PASS` | Needed together to send invoice emails. |
 
+## Deploy on Vercel
+
+The repo deploys to Vercel as is: the built frontend is served as static files and the Express API runs as one serverless function (`api/index.js`). Vercel has no disk that survives between requests, so the hosted app stores its data in a **private Vercel Blob** file.
+
+1. Import the repository in Vercel.
+2. In the project, open **Storage**, create a **Blob** store (private) and connect it to the project. This adds `BLOB_READ_WRITE_TOKEN` for you.
+3. Redeploy.
+
+Without that token the API falls back to the local `db.json` file, which is fine on your own machine and not on Vercel. The hosted database starts empty.
+
 ## Tech
 
 React 19, TypeScript, Vite, Tailwind CSS 4, Express, Zod for request validation, Nodemailer, jsPDF, Motion. Data is stored in a local `db.json` file.
