@@ -1,11 +1,8 @@
-# HealthyChef - Human Longevity & Nutrition
+# HealthyChef
 
-A modern application designed to help manage nutrition, inventory, and invoicing for health-conscious businesses. HealthyChef pairs an intuitive interface with simple inventory and invoice tools for health and nutrition businesses.
+Invoicing, pantry and payment tracking for meal-prep and nutrition businesses. Create GST-ready invoices, email them to clients, export PDFs and see who has paid.
 
-## 📋 About
-
-HealthyChef supports businesses focused on human longevity and nutrition. Whether you're managing a meal prep service, nutritional consulting business, or health-focused food enterprise, HealthyChef provides the tools you need to manage inventory, create invoices, and track business metrics.
-
+The interface uses a warm citrus theme (Bricolage Grotesque and DM Sans, tomato, leaf green and mustard) with a tomato-leaf logo mark.
 
 ## ✨ Features
 
@@ -100,7 +97,9 @@ src/
 │   ├── InvoiceCreator.tsx
 │   ├── InvoiceDetailView.tsx
 │   ├── LandingPage.tsx
-│   └── MainLayout.tsx
+│   ├── MainLayout.tsx
+│   ├── Navigation.tsx
+│   └── HealthyChefLogo.tsx
 ├── server/              # DB access and request validation
 ├── services/            # External services
 │   └── mailService.ts
@@ -123,4 +122,4 @@ src/
 
 ## 📝 License
 
-This project is part of the HealthyChef initiative focused on human longevity and nutrition.
+Built by Yeluru Nitish.
