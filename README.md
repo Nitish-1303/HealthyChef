@@ -6,7 +6,11 @@
 
 <p align="center"><strong>Feed people. Get paid.</strong><br>Invoicing, pantry and payment tracking for meal-prep and nutrition businesses.</p>
 
-<!-- walkthrough-video -->
+## Walkthrough
+
+A 1:40 tour of the app with narration and captions: landing page, dashboard, pantry, and creating and paying an invoice.
+
+https://github.com/user-attachments/assets/592aa415-398f-4587-8baf-85e5a41b1f10
 
 Built by **Yeluru Nitish**.
 
