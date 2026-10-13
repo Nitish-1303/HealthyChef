@@ -1,21 +1,18 @@
-// Fills db.json with clearly fake demo data.
-// Usage: npm run seed          (refuses to overwrite an existing db.json)
+// Fills the local SQLite database with clearly fake demo data.
+// Usage: npm run seed          (refuses to overwrite a database that already has data)
 //        npm run seed -- --force
-import fs from "fs/promises";
-import path from "path";
 import { buildDemoData } from "../src/server/demoData";
-
-const DB_FILE = path.resolve(process.cwd(), "db.json");
+import { readSqlite, replaceSqlite, sqlitePath } from "../src/server/sqliteStore";
 
 async function main() {
   const force = process.argv.includes("--force");
-  const exists = await fs.access(DB_FILE).then(() => true, () => false);
-  if (exists && !force) {
-    console.error("db.json already exists. Run `npm run seed -- --force` to overwrite it.");
+  const current = await readSqlite();
+  if ((current.items.length || current.invoices.length) && !force) {
+    console.error(`${sqlitePath} already has data. Run \`npm run seed -- --force\` to replace it.`);
     process.exit(1);
   }
-  await fs.writeFile(DB_FILE, JSON.stringify(buildDemoData(), null, 2));
-  console.log(`Wrote demo data to ${DB_FILE}`);
+  await replaceSqlite(buildDemoData());
+  console.log(`Wrote demo data to ${sqlitePath}`);
 }
 
 main();

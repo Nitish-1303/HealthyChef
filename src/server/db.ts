@@ -1,6 +1,5 @@
-import fs from "fs/promises";
-import path from "path";
 import { BlobPreconditionFailedError, get, put } from "@vercel/blob";
+import { ensureSqlite, readSqlite, updateSqlite } from "./sqliteStore.js";
 import type { InventoryItem, Invoice } from "../types.js";
 
 export interface DB {
@@ -12,24 +11,10 @@ export interface DB {
  * Where the data lives:
  *  - On Vercel (BLOB_READ_WRITE_TOKEN is set) in one private Vercel Blob file.
  *    Serverless functions have no disk that survives between requests.
- *  - Everywhere else in a local db.json file.
+ *  - Everywhere else in a local SQLite file (see sqliteStore.ts).
  */
 const BLOB_PATH = "healthychef/db.json";
 const useBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-const DB_FILE = path.resolve(process.cwd(), "db.json");
-
-// ---------- local file storage ----------
-
-async function readFileDB(): Promise<DB> {
-  return JSON.parse(await fs.readFile(DB_FILE, "utf-8"));
-}
-
-async function writeFileDB(data: DB) {
-  // Write to a temp file first so a crash mid-write cannot corrupt db.json.
-  const tmp = `${DB_FILE}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(data, null, 2));
-  await fs.rename(tmp, DB_FILE);
-}
 
 // ---------- Vercel Blob storage ----------
 
@@ -72,31 +57,12 @@ export async function ensureDB() {
     await loadBlobDB();
     return;
   }
-  try {
-    await fs.access(DB_FILE);
-  } catch {
-    await writeFileDB({ items: [], invoices: [] });
-  }
+  await ensureSqlite();
 }
 
 export async function readDB(): Promise<DB> {
   if (useBlob) return (await loadBlobDB()).db;
-  return readFileDB();
-}
-
-// Requests that change a local file run one at a time, so two saves can never
-// read the same snapshot and overwrite each other.
-let queue: Promise<unknown> = Promise.resolve();
-
-async function updateFileDB<T>(change: (db: DB) => T | Promise<T>): Promise<T> {
-  const run = queue.then(async () => {
-    const db = await readFileDB();
-    const result = await change(db);
-    await writeFileDB(db);
-    return result;
-  });
-  queue = run.catch(() => undefined);
-  return run;
+  return readSqlite();
 }
 
 // On Vercel several function instances can run at once. The ETag check makes a
@@ -116,7 +82,7 @@ async function updateBlobDB<T>(change: (db: DB) => T | Promise<T>): Promise<T> {
 }
 
 export function updateDB<T>(change: (db: DB) => T | Promise<T>): Promise<T> {
-  return useBlob ? updateBlobDB(change) : updateFileDB(change);
+  return useBlob ? updateBlobDB(change) : updateSqlite(change);
 }
 
 /** Next invoice number for the year: INV-2026-0001, INV-2026-0002, ... */

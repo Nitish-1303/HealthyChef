@@ -1,5 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
 import HealthyChefLogo from "./HealthyChefLogo";
+import { useAuth } from "./AuthContext";
 
 const REPO_URL = "https://github.com/Nitish-1303/HealthyChef";
 
@@ -11,6 +12,7 @@ const tabs = [
 ];
 
 export default function Navigation() {
+  const { authenticated, role, logout } = useAuth();
   return (
     <header className="sticky top-0 z-50 bg-health-bg/90 backdrop-blur">
       <nav className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 px-6 py-5 lg:grid-cols-[1fr_auto_1fr] lg:px-12">
@@ -45,10 +47,26 @@ export default function Navigation() {
           </div>
         </div>
 
-        <div className="justify-self-end">
-          <Link to="/invoices/new" className="btn-health">
-            New invoice
-          </Link>
+        <div className="flex items-center gap-3 justify-self-end">
+          {role === "demo" && (
+            <span className="rounded-full bg-citrus px-3 py-1 text-xs font-bold">Demo (read-only)</span>
+          )}
+          {authenticated ? (
+            <>
+              {role !== "demo" && (
+                <Link to="/invoices/new" className="btn-health">
+                  New invoice
+                </Link>
+              )}
+              <button type="button" onClick={logout} className="text-sm font-bold text-health-muted hover:text-health-ink">
+                Sign out
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="btn-health">
+              Sign in
+            </Link>
+          )}
         </div>
       </nav>
     </header>
